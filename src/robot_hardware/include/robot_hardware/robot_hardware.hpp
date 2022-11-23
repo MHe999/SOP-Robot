@@ -20,12 +20,12 @@
 
 #include <dynamixel_workbench_toolbox/dynamixel_workbench.h>
 
-#include "hardware_interface/base_interface.hpp"
+//Migration from foxy: https://github.com/ros-controls/ros2_control/blob/9ac4bf408400596495bf012c9f3173ef1af5f245/hardware_interface/doc/hardware_components_userdoc.rst
 #include "hardware_interface/system_interface.hpp"
 #include "hardware_interface/handle.hpp"
 #include "hardware_interface/hardware_info.hpp"
 #include "hardware_interface/types/hardware_interface_return_values.hpp"
-#include "hardware_interface/types/hardware_interface_status_values.hpp"
+#include "rclcpp_lifecycle/state.hpp"
 
 using hardware_interface::return_type;
 
@@ -61,7 +61,7 @@ typedef struct {
 
 
 class RobotHardware : public
-  hardware_interface::BaseInterface<hardware_interface::SystemInterface>
+  hardware_interface::SystemInterface
 {
 public:
 
@@ -70,7 +70,7 @@ public:
   RCLCPP_SHARED_PTR_DEFINITIONS(RobotHardware)
 
   ROS2_CONTROL_DEMO_HARDWARE_PUBLIC
-  return_type configure(const hardware_interface::HardwareInfo & info) override;
+  hardware_interface::CallbackReturn on_init(const hardware_interface::HardwareInfo & info) override;
 
   ROS2_CONTROL_DEMO_HARDWARE_PUBLIC
   std::vector<hardware_interface::StateInterface> export_state_interfaces() override;
@@ -79,10 +79,10 @@ public:
   std::vector<hardware_interface::CommandInterface> export_command_interfaces() override;
 
   ROS2_CONTROL_DEMO_HARDWARE_PUBLIC
-  return_type start() override;
+  hardware_interface::CallbackReturn on_activate(const rclcpp_lifecycle::State & previous_state) override;
 
   ROS2_CONTROL_DEMO_HARDWARE_PUBLIC
-  return_type stop() override;
+  hardware_interface::CallbackReturn on_deactivate(const rclcpp_lifecycle::State & previous_state) override;
 
   ROS2_CONTROL_DEMO_HARDWARE_PUBLIC
   return_type read() override;

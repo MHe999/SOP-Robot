@@ -9,14 +9,14 @@ namespace robot_hardware
   RobotHardware::RobotHardware() : logger_(rclcpp::get_logger("RobotHardware"))
   {
   }
-
-  return_type RobotHardware::configure(
+  //Migration from foxy: https://github.com/ros-controls/ros2_control/blob/9ac4bf408400596495bf012c9f3173ef1af5f245/hardware_interface/doc/hardware_components_userdoc.rst
+  hardware_interface::CallbackReturn RobotHardware::on_init(
       const hardware_interface::HardwareInfo &info)
   {
-    if (configure_default(info) != return_type::OK)
-    {
-      return return_type::ERROR;
-    }
+    if (hardware_interface::SystemInterface::on_init(info) != CallbackReturn::SUCCESS)
+  {
+    return CallbackReturn::ERROR;
+  }
 
     hw_states_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
     hw_states_velocity_.resize(info_.joints.size(), 0.0f);
@@ -67,8 +67,8 @@ namespace robot_hardware
     }*/
     }
 
-    status_ = hardware_interface::status::CONFIGURED;
-    return return_type::OK;
+    //status_ = hardware_interface::status::CONFIGURED;
+    return CallbackReturn::SUCCESS;
   }
 
   std::vector<hardware_interface::StateInterface>
@@ -380,7 +380,7 @@ namespace robot_hardware
     return result;
   }
 
-  return_type RobotHardware::start()
+  hardware_interface::CallbackReturn RobotHardware::on_activate(const rclcpp_lifecycle::State & previous_state)
   {
     RCLCPP_INFO(logger_, "Velocity control is not supported yet, so the trajectory is coarse");
 
@@ -393,7 +393,7 @@ namespace robot_hardware
     if (!dxl_wb_.init())
     {
       RCLCPP_ERROR(logger_, "Could not initialize dynamixel workbench");
-      return return_type::ERROR;
+      return CallbackReturn::ERROR;
     }
 
     RCLCPP_INFO(logger_, "Loading dynamixel config...");
@@ -401,54 +401,54 @@ namespace robot_hardware
     if (!load_dynamixel_config(cfg_file))
     {
       RCLCPP_ERROR(logger_, "Could not load dynamixel config from path: %s", cfg_file);
-      return return_type::ERROR;
+      return CallbackReturn::ERROR;
     }
 
     RCLCPP_INFO(logger_, "Configuring dynamixels...");
     if (!configure_dynamixels())
     {
-      return return_type::ERROR;
+      return CallbackReturn::ERROR;
     }
 
     if (dxl_wb_.getProtocolVersion() != 2.0f)
     {
       RCLCPP_ERROR(logger_, "This hardware interface supports only Dynamixel protocol 2.0");
-      return return_type::ERROR;
+      return CallbackReturn::ERROR;
     }
 
     if (!init_dynamixel_control_items())
     {
-      return return_type::ERROR;
+      return CallbackReturn::ERROR;
     }
 
     if (!init_dynamixel_sdk_handlers())
     {
-      return return_type::ERROR;
+      return CallbackReturn::ERROR;
     }
 
     if (!set_default_servo_positions())
     {
       RCLCPP_ERROR(logger_, "Could not set default servo positions!");
-      return return_type::ERROR;
+      return CallbackReturn::ERROR;
     }
 
     RCLCPP_INFO(logger_, "Arming servos...");
     if (!arm_servos())
     {
       RCLCPP_ERROR(logger_, "Could not arm servos");
-      return return_type::ERROR;
+      return CallbackReturn::ERROR;
     }
 
-    status_ = hardware_interface::status::STARTED;
+    //status_ = hardware_interface::status::STARTED;
 
     RCLCPP_INFO(
         logger_,
         "System Sucessfully started!");
 
-    return return_type::OK;
+    return CallbackReturn::SUCCESS;
   }
 
-  return_type RobotHardware::stop()
+  hardware_interface::CallbackReturn RobotHardware::on_deactivate(const rclcpp_lifecycle::State & previous_state)
   {
     RCLCPP_INFO(
         logger_,
@@ -457,16 +457,16 @@ namespace robot_hardware
     if (!disarm_servos())
     {
       RCLCPP_ERROR(logger_, "Could not disarm servos!");
-      return return_type::ERROR;
+      return CallbackReturn::ERROR;
     }
 
-    status_ = hardware_interface::status::STOPPED;
+    //status_ = hardware_interface::status::STOPPED;
 
     RCLCPP_INFO(
         logger_,
         "System sucessfully stopped!");
 
-    return return_type::OK;
+    return CallbackReturn::SUCCESS;
   }
 
   bool RobotHardware::read_servo_group_values(const DynamixelGroup &group)
