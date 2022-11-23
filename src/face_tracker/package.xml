@@ -11,7 +11,7 @@
   <depend>python3-keras</depend>
   <depend>python-argparse</depend>
   <depend>python3-sklearn</depend>
-  <depend>python-numpy</depend>
+  <depend>python3-numpy</depend>
   <depend>python3-progressbar</depend>
   <depend>python-dlib</depend>
 
