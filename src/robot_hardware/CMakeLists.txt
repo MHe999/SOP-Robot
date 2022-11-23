@@ -24,6 +24,7 @@ find_package(trajectory_msgs REQUIRED)
 find_package(dynamixel_workbench_toolbox REQUIRED)
 find_package(yaml-cpp REQUIRED)
 find_package(pluginlib REQUIRED)
+find_package(rclcpp_lifecycle REQUIRED)
 
 ## COMPILE
 add_library(
@@ -49,7 +50,7 @@ target_include_directories(
   ${PROJECT_NAME}
   PRIVATE
   include
-  /ros2_control_ws/install/hardware_interface/include/
+  #/ros2_control_ws/install/hardware_interface/include/
 )
 
 ament_target_dependencies(
