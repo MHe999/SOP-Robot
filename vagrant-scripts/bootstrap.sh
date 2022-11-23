@@ -2,7 +2,7 @@
 
 sudo -u vagrant echo "export WORKSPACE='/workspace/'" >> /home/vagrant/.bashrc
 sudo -u vagrant echo "cd /workspace" >> /home/vagrant/.bashrc
-sudo -u vagrant echo "source /opt/ros/foxy/setup.bash" >> /home/vagrant/.bashrc
+sudo -u vagrant echo "source /opt/ros/humble/setup.bash" >> /home/vagrant/.bashrc
 
 # Enable X11 Forwarding
 # echo "X11Forwarding yes" >> /etc/ssh/sshd_config
@@ -15,7 +15,12 @@ chown -R vagrant /workspace/
 apt update
 
 # setup GNOME desktop
-apt-get install -y ubuntu-desktop virtualbox-guest-dkms virtualbox-guest-utils virtualbox-guest-x11
+apt install -y ubuntu-desktop
+
+apt install -y \
+  virtualbox-guest-dkms \
+  virtualbox-guest-utils \
+  virtualbox-guest-x11
 
 # Install ROS1
 #sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
@@ -30,16 +35,23 @@ apt-get install -y ubuntu-desktop virtualbox-guest-dkms virtualbox-guest-utils v
 
 # sudo -u vagrant rosdep update
 
-# Install ROS2
-apt install curl gnupg2 lsb-release software-properties-common
+# Preparations to install ROS2
+apt install -y curl \
+  gnupg2 lsb-release \
+  software-properties-common
 
-curl -s 'https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc' | apt-key add -
-sh -c 'echo "deb [arch=$(dpkg --print-architecture)] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/ros2-latest.list'
+add-apt-repository -y universe
+#Adding ROS2 GPG key
+sudo apt update && sudo apt install curl gnupg lsb-release
+sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+#Adding the repository to sources list
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(source /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
 
 # add-apt-repository ppa:deadsnakes/ppa
 #   python3.7 \
 
 apt update
+apt upgrade
 
 apt install -y \
   build-essential \
@@ -68,7 +80,8 @@ python3 -m pip install -U \
   flake8-quotes \
   pytest-repeat \
   pytest-rerunfailures \
-  pytest
+  pytest\
+  diagrams
 # install Fast-RTPS dependencies
 apt install --no-install-recommends -y \
   libasio-dev \
@@ -77,9 +90,10 @@ apt install --no-install-recommends -y \
 apt install --no-install-recommends -y \
   libcunit1-dev
 
-# Install ROS2 Foxy
+# Install ROS2 Humble
 apt install -y \
-  ros-foxy-desktop ros-foxy-dynamixel-sdk
+  ros-humble-desktop \
+  ros-humble-dynamixel-sdk
 
 # curl -L -o /tmp/ros2-foxy.tar.bz2 https://github.com/ros2/ros2/releases/download/release-foxy-20201211/ros2-foxy-20201211-linux-focal-amd64.tar.bz2
 
@@ -104,16 +118,27 @@ udevadm trigger
 # ln -s /usr/bin/python3.7 /usr/bin/python3
 
 # Clone submodules
-cd /workspace && git submodule update --init --recursive
+#cd /workspace && git submodule update --init --recursive
+cd /workspace/src/
+git clone https://github.com/ROBOTIS-GIT/dynamixel-workbench.git
+git clone https://github.com/ROBOTIS-GIT/dynamixel-workbench-msgs.git
+cd /workspace/src/dynamixel-workbench/
+git checkout humble-devel
+cd /workspace/src/dynamixel-workbench-msgs/
+git checkout humble-devel
+cd
 
-source /opt/ros/foxy/setup.bash
+source /opt/ros/humble/setup.bash
 
 # Install package dependencies
 apt install -y \
-  ros-foxy-test-msgs ros-foxy-control-msgs \
-  ros-foxy-realtime-tools ros-foxy-xacro ros-foxy-angles \
+  ros-humble-test-msgs \
+  ros-humble-control-msgs \
+  ros-humble-realtime-tools \
+  ros-humble-xacro \
+  ros-humble-angles \
   v4l-utils
-
+  ros-humble-diagnostic-updater
 
 # Install ros2_control (https://github.com/ros-controls/ros2_control)
 
@@ -121,11 +146,18 @@ mkdir -p /ros2_control_ws/src
 cd /ros2_control_ws
 
 # Making custom repo file to pull foxy versions
-vcs import src < /workspace/vagrant-scripts/ros2_control_ws.repos.yml
+vcs import src < /workspace/vagrant-scripts/ros2_control_ws.repos_humble.yml
 colcon build
 
 source /ros2_control_ws/install/setup.bash
 sudo -u vagrant echo "source /ros2_control_ws/install/setup.bash" >> /home/vagrant/.bashrc
+
+#We'll install the humble versions using apt instead
+apt install -y \
+  #ros-humble-ros2-control \
+  ros-humble-ros2-controllers \
+  ros-humble-control-msgs \
+  ros-humble-control-toolbox
 
 # Allow access to shared folders
 adduser vagrant vboxsf
@@ -140,7 +172,7 @@ cd ..
 
 rosdep init
 rosdep update
-rosdep install --from-paths src --ignore-src --rosdistro foxy -r -y
+rosdep install --from-paths src --ignore-src --rosdistro humble -r -y
 
 colcon build
 source /opencv_cam_ws/install/setup.bash
@@ -150,4 +182,6 @@ python3 -m pip install opencv-python dlib
 
 # Install workspace package dependencies
 cd /workspace
-#rosdep install --from-paths src --ignore-src --rosdistro foxy -r -y
+rosdep install --from-paths src --ignore-src --rosdistro humble -r -y
+
+reboot
