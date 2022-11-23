@@ -3,7 +3,7 @@
 
 The robot uses ROS2 (Robot Operating System 2). Read the [ROS2 wiki!](https://index.ros.org/doc/ros2/).
 
-**Note: See [development](./docs/DEVELOPMENT.md) for how to create VirtualBox ROS2 Foxy VM using Vagrant**
+**Note: See [development](./docs/DEVELOPMENT.md) for how to create VirtualBox ROS2 Humble VM using Vagrant**
 
 ## The Robot
 
