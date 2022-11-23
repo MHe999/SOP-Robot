@@ -142,19 +142,19 @@ apt install -y \
 
 # Install ros2_control (https://github.com/ros-controls/ros2_control)
 
-mkdir -p /ros2_control_ws/src
-cd /ros2_control_ws
+#mkdir -p /ros2_control_ws/src
+#cd /ros2_control_ws
 
-# Making custom repo file to pull foxy versions
-vcs import src < /workspace/vagrant-scripts/ros2_control_ws.repos_humble.yml
-colcon build
+# Making custom repo file to pull Humble versions
+#vcs import src < /workspace/vagrant-scripts/ros2_control_ws.repos_humble.yml
+#colcon build
 
-source /ros2_control_ws/install/setup.bash
-sudo -u vagrant echo "source /ros2_control_ws/install/setup.bash" >> /home/vagrant/.bashrc
+#source /ros2_control_ws/install/setup.bash
+#sudo -u vagrant echo "source /ros2_control_ws/install/setup.bash" >> /home/vagrant/.bashrc
 
 #We'll install the humble versions using apt instead
 apt install -y \
-  #ros-humble-ros2-control \
+  ros-humble-ros2-control \
   ros-humble-ros2-controllers \
   ros-humble-control-msgs \
   ros-humble-control-toolbox
