@@ -1,0 +1,15 @@
+| Servo ID | Model | Joint name                  | Description           | Center position | Left max | Right max |
+| -------- | ----- | --------------------------- | --------------------- |-----------------|----------|-----------|
+| 1        | XL430 | head_tilt_right_joint       | Head tilt right-side  | 200°            | 235°     | 170°      |
+| 2        | XL430 | head_tilt_vertical_joint    | Head tilt up/down     | 155°            | 190° D   | 130°   U  |
+| 3        | XL430 | head_tilt_left_joint        | Head tilt left-side   | 140°            | 095°     | 165°      |
+| 4        | XL430 | head_pan_joint              | Head turn left/right  | 210°            | 270° R   | 165°   L  |
+| 10       | XL320 | eyes_shift_horizontal_joint | Eyes shift left/right | 100°            | 155° R   | 055°   L  |
+| 11       | XL320 | eyes_shift_vertical_joint   | Eyes shift up/down    | 090°            | 185° U   | 005°   D  |
+| 12       | XL320 | head_jaw_joint              | Open/close jaw        | 170°            | 185° O   | 160°   C  |
+| 31       | XL320 | r_thumb_joint               | Open/close thumb      | 000°            | 000°     | 000°      |
+| 34       | XL320 | r_index1_joint              | Open/close index      | 000°            | 000°     | 000°      |
+| 37       | XL320 | r_middle1_joint             | Open/close middle     | 000°            | 000°     | 000°      |
+| 40       | XL320 | r_ring_joint                | Open/close ring       | 000°            | 000°     | 000°      |
+| 44       | XL320 | r_pinky_joint               | Open/close pinky      | 000°            | 000°     | 000°      |
+| 47       | XL320 | unnamed joint               | Rotate wrist          | 000°            | 000°     | 000°      |
