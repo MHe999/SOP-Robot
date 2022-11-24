@@ -109,7 +109,7 @@ namespace robot_hardware
   bool RobotHardware::load_dynamixel_config(const std::string yaml_file)
   {
     YAML::Node cfg = YAML::LoadFile(yaml_file.c_str());
-    if (cfg == NULL)
+    if (cfg.IsNull())
     {
       return false;
     }
