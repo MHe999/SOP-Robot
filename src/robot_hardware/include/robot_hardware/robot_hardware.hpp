@@ -85,10 +85,10 @@ public:
   hardware_interface::CallbackReturn on_deactivate(const rclcpp_lifecycle::State & previous_state) override;
 
   ROS2_CONTROL_DEMO_HARDWARE_PUBLIC
-  return_type read() override;
+  return_type read(const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
   ROS2_CONTROL_DEMO_HARDWARE_PUBLIC
-  return_type write() override;
+  return_type write(const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
 private:
   // Store the command for the simulated robot

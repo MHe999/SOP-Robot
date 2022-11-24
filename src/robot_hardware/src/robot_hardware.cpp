@@ -594,7 +594,7 @@ namespace robot_hardware
     return true;
   }
 
-  hardware_interface::return_type RobotHardware::read()
+  hardware_interface::return_type RobotHardware::read(const rclcpp::Time & time, const rclcpp::Duration & period)
   {
     return read_servo_values() ? return_type::OK : return_type::ERROR;
   }
@@ -680,7 +680,7 @@ namespace robot_hardware
     return true;
   }
 
-  hardware_interface::return_type RobotHardware::write()
+  hardware_interface::return_type RobotHardware::write(const rclcpp::Time & time, const rclcpp::Duration & period)
   {
     bool all_success = true;
 
