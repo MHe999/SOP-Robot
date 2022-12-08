@@ -21,8 +21,6 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
-#from launch.actions import RegisterEventHandler, ExecuteProcess
-#from launch.event_handlers import OnProcessExit
 from launch_ros.substitutions import FindPackageShare
 
 import xacro
@@ -67,7 +65,7 @@ def generate_launch_description():
     controller = os.path.join(
         get_package_share_directory('robot'),
         'controllers',
-        'head.yaml'
+        'robot.yaml'
         )
 
     ros2_control_node = Node(
@@ -80,25 +78,8 @@ def generate_launch_description():
           },
     )
 
-
-    # Idea here was to delete the generated dynamixel.yaml file after
-    # it is no longer needed. Does not work yet.
-
-    # temp_file_delete_process = RegisterEventHandler(
-    #     OnProcessExit(
-    #         target_action=ros2_control_node,
-    #         on_exit=[
-    #             ExecuteProcess(
-    #                 cmd=["rm " + DYNAMIXEL_CONFIG_FILEPATH_FOR_LAUNCH],
-    #                 log_cmd=True
-    #             )                
-    #         ]
-    #     )
-    # )
-
     nodes = [
         ros2_control_node,
-        #temp_file_delete_process
     ]
 
     return LaunchDescription(nodes)
