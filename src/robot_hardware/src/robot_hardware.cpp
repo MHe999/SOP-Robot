@@ -108,6 +108,7 @@ namespace robot_hardware
 
   bool RobotHardware::load_dynamixel_config(const std::string yaml_file)
   {
+    RCLCPP_INFO(logger_, "Loading dynamixel config file");
     YAML::Node cfg = YAML::LoadFile(yaml_file.c_str());
     if (cfg.IsNull())
     {
@@ -145,6 +146,7 @@ namespace robot_hardware
 
   bool RobotHardware::arm_servos()
   {
+    RCLCPP_INFO(logger_, "Arming servos...");
     bool res = true;
 
     for (auto const &dxl : dynamixel_)
@@ -182,6 +184,7 @@ namespace robot_hardware
   // Check that servos are available and arm them
   bool RobotHardware::configure_dynamixels()
   {
+    RCLCPP_INFO(logger_, "Configuring dynamixels:");
     const char *log;
 
     for (auto const &dxl : dynamixel_)
@@ -206,8 +209,13 @@ namespace robot_hardware
       {
         if (dxl.first == info.first)
         {
+          //RCLCPP_INFO(logger_, "info.second.item_name [%s]", info.second.item_name.c_str());
           if (info.second.item_name != "ID" && info.second.item_name != "Baud_Rate")
           {
+            RCLCPP_INFO(logger_,
+                           "Trying to write initial value [%d] on item [%s] to Dynamixel[Name : %s, ID : %d]",
+                           info.second.value, info.second.item_name.c_str(), dxl.first.c_str(),
+                           dxl.second);
             if (!dxl_wb_.itemWrite(
                     (uint8_t)dxl.second, info.second.item_name.c_str(), info.second.value, &log))
             {
@@ -244,7 +252,7 @@ namespace robot_hardware
       DynamixelGroup group;
       group.servos[dxl.first] = dxl.second;
 
-      RCLCPP_INFO(logger_, "Servo count: %d", group.servos.size());
+      //RCLCPP_INFO(logger_, "Servo count: %ld", group.servos.size());
 
       const ControlItem *goal_position = dxl_wb_.getItemInfo(dxl.second, "Goal_Position");
       group.write_control_items[ControlItemType::DesiredPos] = goal_position;
@@ -274,7 +282,7 @@ namespace robot_hardware
 
       model_groups[model_number] = group;
 
-      RCLCPP_INFO(logger_, "Initialized dynamixel model: %d", model_number);
+      RCLCPP_INFO(logger_, "Initialized dynamixel model: %d (350 = XL320 and 1060 = XL430)", model_number);
     }
 
     for (const auto &pair : model_groups)
@@ -287,6 +295,7 @@ namespace robot_hardware
 
   bool RobotHardware::init_dynamixel_sdk_handlers()
   {
+    RCLCPP_INFO(logger_, "Initializing Dynamixel SDK handlers for each model group:");
     bool result = false;
     const char *log = NULL;
 
@@ -295,6 +304,7 @@ namespace robot_hardware
 
     for (auto &group : dynamixel_groups_)
     {
+      RCLCPP_INFO(logger_, "Configuring next model group's handlers");
       const auto ctrl_items = group.write_control_items;
 
       const auto desired_pos = ctrl_items.at(ControlItemType::DesiredPos);
@@ -306,7 +316,7 @@ namespace robot_hardware
       const auto present_curr = ctrl_items.at(ControlItemType::PresentCurrent);
 
       RCLCPP_INFO(logger_, "desired_pos: %p, desired_vel: %p, desired_acc: %p, present_pos: %p, present_vel: %p, present_current: %p",
-                  desired_pos, desired_vel, desired_acc, present_pos, present_vel, present_curr);
+                  (void *)desired_pos, (void *)desired_vel, (void *)desired_acc, (void *)present_pos, (void *)present_vel, (void *)present_curr);
 
       if (desired_pos != nullptr)
       {
@@ -362,7 +372,7 @@ namespace robot_hardware
         As some models have an empty space between Present_Velocity and Present Current, read_length is modified as below.
       */
       // uint16_t read_length = control_items_["Present_Position"]->data_length + control_items_["Present_Velocity"]->data_length + control_items_["Present_Current"]->data_length;
-      uint16_t read_length = present_pos->data_length + present_vel->data_length + present_curr->data_length + 2;
+      uint16_t read_length = present_pos->data_length + present_vel->data_length + present_curr->data_length + 2;//Is this +2 needed still?
       RCLCPP_INFO(logger_, "syncReadHandler read_length: %d", read_length);
 
       result = dxl_wb_.addSyncReadHandler(start_address,
@@ -373,6 +383,10 @@ namespace robot_hardware
         RCLCPP_ERROR(logger_, "%s", log);
         return result;
       }
+      else
+      {
+        RCLCPP_INFO(logger_, "%s", log);
+      }
 
       group.read_handler_id = read_handler_id++;
     }
@@ -380,7 +394,7 @@ namespace robot_hardware
     return result;
   }
 
-  hardware_interface::CallbackReturn RobotHardware::on_activate(const rclcpp_lifecycle::State & previous_state)
+  hardware_interface::CallbackReturn RobotHardware::on_activate(const rclcpp_lifecycle::State & /*previous_state*/)
   {
     RCLCPP_INFO(logger_, "Velocity control is not supported yet, so the trajectory is coarse");
 
@@ -398,7 +412,7 @@ namespace robot_hardware
 
     RCLCPP_INFO(logger_, "Loading dynamixel config...");
     auto cfg_file = info_.hardware_parameters["dynamixel_info"];
-    if (!load_dynamixel_config(cfg_file))
+    if (!load_dynamixel_config(cfg_file.c_str()))
     {
       RCLCPP_ERROR(logger_, "Could not load dynamixel config from path: %s", cfg_file);
       return CallbackReturn::ERROR;
@@ -429,7 +443,7 @@ namespace robot_hardware
     if (!set_default_servo_positions())
     {
       RCLCPP_ERROR(logger_, "Could not set default servo positions!");
-      return CallbackReturn::ERROR;
+      //return CallbackReturn::ERROR; //Commenting this out for now since this fails almost every time
     }
 
     RCLCPP_INFO(logger_, "Arming servos...");
@@ -448,7 +462,7 @@ namespace robot_hardware
     return CallbackReturn::SUCCESS;
   }
 
-  hardware_interface::CallbackReturn RobotHardware::on_deactivate(const rclcpp_lifecycle::State & previous_state)
+  hardware_interface::CallbackReturn RobotHardware::on_deactivate(const rclcpp_lifecycle::State & /*previous_state*/)
   {
     RCLCPP_INFO(
         logger_,
@@ -478,6 +492,7 @@ namespace robot_hardware
     const auto ctrl_items = group.write_control_items;
 
     uint8_t id_array[servos.size()];
+    //RCLCPP_INFO(logger_, "Test print: read_servo_group_values: trying to read %d servos", servos.size());
     uint8_t id_cnt = 0;
 
     // int32_t get_current[dynamixel_.size()];
@@ -499,6 +514,7 @@ namespace robot_hardware
                               &log);
     if (!result)
     {
+      RCLCPP_ERROR(logger_, "Error while trying to read servo values, IDs: %d, %d, %d...", id_array[0], id_array[1], id_array[2]);
       RCLCPP_ERROR(logger_, "syncRead [HandlerId: %d]: %s", group.read_handler_id, log);
       return false;
     }
@@ -582,6 +598,7 @@ namespace robot_hardware
   {
     if (!read_servo_values())
     {
+      RCLCPP_ERROR(logger_, "Failed to read servo values while setting default positions");
       return false;
     }
 
@@ -594,9 +611,15 @@ namespace robot_hardware
     return true;
   }
 
-  hardware_interface::return_type RobotHardware::read(const rclcpp::Time & time, const rclcpp::Duration & period)
+  hardware_interface::return_type RobotHardware::read(const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
   {
-    return read_servo_values() ? return_type::OK : return_type::ERROR;
+    //RCLCPP_INFO(logger_, "Test print: trying to read servos.");
+    //return read_servo_values() ? return_type::OK : return_type::ERROR;
+    if (read_servo_values() == false){
+      RCLCPP_ERROR(logger_, "Test print: reading servos values failed");
+    }// ? return_type::OK : return_type::ERROR;
+    return hardware_interface::return_type::OK;
+    //For now, must return only OK, because on_error function is not implemented yet and robot will otherwise stop continuously
   }
 
   bool RobotHardware::write_servo_group_values(const DynamixelGroup &group)
@@ -680,7 +703,7 @@ namespace robot_hardware
     return true;
   }
 
-  hardware_interface::return_type RobotHardware::write(const rclcpp::Time & time, const rclcpp::Duration & period)
+  hardware_interface::return_type RobotHardware::write(const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
   {
     bool all_success = true;
 
@@ -689,10 +712,13 @@ namespace robot_hardware
       if (!write_servo_group_values(group))
       {
         all_success = false;
+        RCLCPP_ERROR(logger_, "Writing servo values failed");
       }
     }
 
-    return all_success ? return_type::OK : return_type::ERROR;
+    //return all_success ? return_type::OK : return_type::ERROR;
+    return hardware_interface::return_type::OK;
+    //For now, must return only OK, because on_error function is not implemented yet and robot will otherwise stop continuously
   }
 } // namespace robot_hardware
 
