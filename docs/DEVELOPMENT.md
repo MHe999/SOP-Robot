@@ -35,6 +35,14 @@ vagrant up --provider=virtualbox
 
 Provisioning the machine for the first time can take up to 1 hour. In the meantime, download VSCode and checkout the remote development feature mentioned below. If you are using HyperV on Windows, you may have to enable `smb direct` in Windows features to be able to mount smb shares. 
 
+After provisioning, install VirtualBox Guest Additions using vagrant (from host OS console): 
+
+```console
+vagrant plugin install vagrant-vbguest
+````
+
+You must also manually enable USB support for the VM using VirtualBox's GUI.
+
 Now test that the provision succeeded, so `vagrant ssh` into the guest and run `ls`, you should be see the following output:
 
 ```console
@@ -42,6 +50,7 @@ PS C:\projects\SOP-Robot> vagrant ssh
 vagrant@vagrant-ros:/workspace$ ls
 2  config  docs  img  launch  Makefile  README.md  scripts  sop-robot.code-workspace  src  vagrant  Vagrantfile  vagrant-scripts
 ```
+
 
 The easiest way to setup development environment for the ROS packages is to use the [SSH Remote Development
 feature](https://code.visualstudio.com/docs/remote/ssh) in [Visual Studio Code](https://code.visualstudio.com/) and to do the development inside the guest machine using this feature.
