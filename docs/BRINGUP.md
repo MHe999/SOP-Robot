@@ -23,22 +23,29 @@ Start with
 
 ```console
 ros2 launch robot robot.launch.py
+# Launch only arm (and hand):
+ros2 launch robot robot.launch.py robot_parts:=arm
+# Launch only head:
+ros2 launch robot robot.launch.py robot_parts:=head
+# If no parameter or invalid parameter is given, includes all available parts (currently arm+hand and head).
 ```
 This should launch the robot listening server. If not, check the **servos not responding** part below.
 
 Then open up another cli and do the following.
-
-```console
-ros2 control load_start_controller joint_state_broadcaster
-ros2 control load_start_controller [YOUR CONTROLLER NAME HERE]
-```
 New way to start the services controllers without deprecated warning
 ```console
-ros2 control load_controller --set-state start joint_state_broadcaster
-ros2 control load_controller --set-state start r_hand_controller
+ros2 control load_controller --set-state configured joint_state_broadcaster
+ros2 control load_controller --set-state configured r_hand_controller
+ros2 control load_controller --set-state configured [OTHER NEEDED CONTROLLER]
 ```
-
+In Humble: Controllers must be now separately activated
+```console
+ros2 control set_controller_state joint_state_broadcaster active
+ros2 control set_controller_state r_hand_controller active
+ros2 control set_controller_state [OTHER NEEDED CONTROLLER] active
+```
 Check if controllers were loaded and confirm that all controllers are in `active` state:
+
 
 ```console
 ros2 control list_controllers
