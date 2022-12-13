@@ -125,15 +125,14 @@ udevadm trigger
 # ln -s /usr/bin/python3.7 /usr/bin/python3
 
 # Clone submodules
-#cd /workspace && git submodule update --init --recursive
-cd /workspace/src/
-git clone https://github.com/ROBOTIS-GIT/dynamixel-workbench.git
-git clone https://github.com/ROBOTIS-GIT/dynamixel-workbench-msgs.git
-cd /workspace/src/dynamixel-workbench/
-git checkout humble-devel
-cd /workspace/src/dynamixel-workbench-msgs/
-git checkout humble-devel
-cd
+cd /workspace && git submodule update --init --recursive
+#cd /workspace/src/
+#git clone https://github.com/ROBOTIS-GIT/dynamixel-workbench.git
+#git clone https://github.com/ROBOTIS-GIT/dynamixel-workbench-msgs.git
+#cd /workspace/src/dynamixel-workbench/
+#git checkout humble-devel
+#cd /workspace/src/dynamixel-workbench-msgs/
+#git checkout humble-devel
 
 source /opt/ros/humble/setup.bash
 
