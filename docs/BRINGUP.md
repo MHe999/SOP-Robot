@@ -65,11 +65,6 @@ You can launch the real robot using a launch file:
 
 ```console
 ros2 launch robot robot.launch.py
-# Launch only arm (and hand):
-ros2 launch robot robot.launch.py robot_parts:=arm
-# Launch only head:
-ros2 launch robot robot.launch.py robot_parts:=head
-# If no parameter or invalid parameter is given, includes all available parts (currently arm+hand and head).
 ```
 
 This should launch the robot listening server and prints a lot of output. If not, check the [Troubleshooting][] part below. `robot.launch.py` file creates temporary file from [dynamixel_arm.yaml][] and [dynamixel_head.yaml][] to `config/` folder to allow launching the arm and head separately.
@@ -95,12 +90,20 @@ In general you can start the controllers:
 ```console
 ros2 control load_controller --set-state start <controller_name>
 ```
+And then activate:
+```console
+ros2 control set_controller_state <controller_name> active
+```
 
 ### 2. Starting the controllers for hand
 Open up another cli and start the controllers
 
 ```console
-ros2 control load_controller --set-state start r_hand_controller
+ros2 control load_controller --set-state configured r_hand_controller
+```
+Then active the controllers
+```console
+ros2 control set_controller_state r_hand_controller active
 ```
 Check if controllers were loaded and confirm that all controllers are in `active` state:
 
@@ -118,7 +121,8 @@ If you completed the step 2. you can run this command in same cli. Otherwise ope
 Start the controller for eyes:
 
 ```console
-ros2 control load_start_controller eyes_controller
+ros2 control load_controller --set-state configured eyes_controller
+ros2 control set_controller_state eyes_controller active
 ```
 
 ### 4. Launching the face tracker
@@ -149,7 +153,7 @@ ros2 run eye_movement eye_movement_node
 
 ## Sending action goals manually
 
-If you want to send action goals to head you need to start the `head_controller` Then following actions and topics should be available:
+If you want to send action goals to head you need to load and activate the `head_controller` Then following actions and topics should be available:
 
 ```console
 vagrant@vagrant-ros:/workspace$ ros2 action list
@@ -179,7 +183,9 @@ ros2 action send_goal /head_controller/follow_joint_trajectory control_msgs/acti
 
 ## Webcam setup in Virtualbox
 
-If you have a integrated webcam in you laptop you can use it. You need to pass the webcam hardware to Ubuntu guest from menu "Devices->Webcam->..." and choose your hardware. If you are using the usb connected external webcam configure it inside the USB settings. Or just pass it to guest with "Devices->USB->..." and choose your webcam.
+If you have a integrated webcam in you laptop you can use it. You need to pass the webcam hardware to Ubuntu guest from menu "Devices->Webcam->..." and choose your hardware. ~~If you are using the usb connected external webcam configure it inside the USB settings. Or just pass it to guest with "Devices->USB->..." and choose your webcam.~~
+
+Currently in Humble you must add also external USB webcams (e.g. the camera integrated to the robot eye) via Devices->Webcam.
 
 **If you have issues connecting the camera to guest make sure that you have the matching version of guest additions installed in the guest os.**
 
@@ -235,7 +241,7 @@ After you have run that try again `colcon build`.
 
 #### 3. Build fails to dependency issue
 
-If you face package dependency failures during `colcon build` please run `rosdep install --from-paths src --ignore-src --rosdistro foxy -r -y`. It might request you to run `rosdep update` first. Run it first and then run the `rosdep install ...`. Then try to run `colcon build` again and it should be able to figure out those dependencies now.
+If you face package dependency failures during `colcon build` please run `rosdep install --from-paths src --ignore-src --rosdistro humble -r -y`. It might request you to run `rosdep update` first. Run it first and then run the `rosdep install ...`. Then try to run `colcon build` again and it should be able to figure out those dependencies now.
 
 
 <!-- References -->
