@@ -35,13 +35,17 @@ Then open up another cli and do the following.
 New way to start the services controllers without deprecated warning
 ```console
 ros2 control load_controller --set-state configured joint_state_broadcaster
+ros2 control load_controller --set-state configured eyes_controller
 ros2 control load_controller --set-state configured r_hand_controller
+ros2 control load_controller --set-state configured head_controller
 ros2 control load_controller --set-state configured [OTHER NEEDED CONTROLLER]
 ```
 In Humble: Controllers must be now separately activated
 ```console
 ros2 control set_controller_state joint_state_broadcaster active
+ros2 control set_controller_state eyes_controller active
 ros2 control set_controller_state r_hand_controller active
+ros2 control set_controller_state head_controller active
 ros2 control set_controller_state [OTHER NEEDED CONTROLLER] active
 ```
 Check if controllers were loaded and confirm that all controllers are in `active` state:
