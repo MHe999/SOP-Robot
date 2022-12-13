@@ -66,6 +66,7 @@ apt install -y \
   python3-rosdep \
   python3-setuptools \
   python3-vcstool \
+  python3-keras \
   wget
 # install some pip packages needed for testing
 python3 -m pip install -U \
@@ -173,8 +174,11 @@ adduser vagrant vboxsf
 mkdir -p /opencv_cam_ws/src
 cd /opencv_cam_ws/src
 git clone https://github.com/clydemcqueen/opencv_cam.git
+# Checkout specific commit of ros2_shared
 git clone https://github.com/ptrmu/ros2_shared.git
-cd ..
+cd ros2_shared
+git checkout 02433ef4f873876c3dd3ab2925987cf04d224660
+cd ../..
 
 rosdep init
 rosdep update
@@ -190,4 +194,11 @@ python3 -m pip install opencv-python dlib
 cd /workspace
 rosdep install --from-paths src --ignore-src --rosdistro humble -r -y
 
+# Enable sourcing of built ros2 environment to bash configuration
+echo "source install/setup.bash" >> /home/vagrant/.bashrc
+
+# Enable colcon autocomplete
+echo "source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash" >> /home/vagrant/.bashrc
+
 reboot
+

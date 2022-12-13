@@ -6,7 +6,7 @@ Vagrant.configure("2") do |config|
   # Every Vagrant virtual environment requires a box to build off of.
   config.vm.box = "generic/ubuntu2204"
   config.vm.hostname = "vagrant-ros"
-  config.vm.define "ros-vagrant-humble"
+  config.vm.define "vagrant-ros-humble"
   config.vm.provider "virtualbox" do |vb|
     # Don't boot with headless mode
     vb.gui = true
