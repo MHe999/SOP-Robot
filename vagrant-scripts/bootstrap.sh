@@ -96,11 +96,11 @@ apt install -y \
   ros-humble-dynamixel-sdk
 
 #Try to install python3-keras already here, because it often fails with rosdep...
-apt install -y python3-keras
+#apt install -y python3-keras
 #python3-keras not available in 22.04, so install requirements with pip
-#python3 -m pip install -U \
-# keras \
-# tensorflow
+python3 -m pip install -U \
+ #keras \
+ tensorflow-cpu #CPU version of the tensorflow, install tensorflow if both cpu and gpu is needed
 
 # curl -L -o /tmp/ros2-foxy.tar.bz2 https://github.com/ros2/ros2/releases/download/release-foxy-20201211/ros2-foxy-20201211-linux-focal-amd64.tar.bz2
 
