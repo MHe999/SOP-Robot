@@ -178,7 +178,7 @@ git clone https://github.com/clydemcqueen/opencv_cam.git
 git clone https://github.com/ptrmu/ros2_shared.git
 cd ros2_shared
 git checkout 02433ef4f873876c3dd3ab2925987cf04d224660
-cd ../..
+cd ..
 
 rosdep init
 rosdep update
