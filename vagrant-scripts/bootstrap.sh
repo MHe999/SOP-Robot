@@ -66,7 +66,7 @@ apt install -y \
   python3-rosdep \
   python3-setuptools \
   python3-vcstool \
-  python3-keras \
+  #python3-keras \ #Package does not exist in new Ubuntu and provisioning will fail
   wget
 # install some pip packages needed for testing
 python3 -m pip install -U \
