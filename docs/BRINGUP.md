@@ -2,7 +2,7 @@
 
 Open the terminal in VM and build the robot code with `colcon build`. This will take a while especially on first run.
 
-Next you need to source the built environment with `source install/setup.bash`. In short, you need to run this every time you have fresh build for your robot. This is set up in ~.bashrc, so you don't need to run it in every new terminal before launching the robot or other node.
+Next you need to source the built environment with `source install/setup.bash`. In short, you need to run this every time you have fresh build for your robot. This is set up in ~/.bashrc, so you don't need to run it in every new terminal before launching the robot or other node.
 
 Now continue instructions in [Bring-up fake (simulated) robot][] or [Bring-up real HW robot][].
 
@@ -15,7 +15,7 @@ If you just want to test that robot starts, send hand written commands or use th
 
 [Webcam setup in Virtualbox]:#webcam-setup-in-virtualbox
 
-You can launch the fake robot in rviz using launch file. Run the following command in a GUI environment:
+You can launch the fake robot in rviz using the launch file. Run the following command in a GUI environment:
 
 ```console
 ros2 launch robot robot.fake.launch.py
@@ -53,6 +53,8 @@ Success! You are done. Eyes should "follow" your face. This implementation has a
 
 Anyway, you are able to test the face tracking and eye movements like this.
 
+**Note: currently, only jaw, eyes, right hand & head pan movement can be simulated**
+
 ## Bring-up real HW robot
 
 ### (0. Test servo communication)
@@ -69,7 +71,7 @@ ros2 launch robot robot.launch.py
 
 This should launch the robot listening server and prints a lot of output. If not, check the [Troubleshooting][] part below. `robot.launch.py` file creates temporary file from [dynamixel_arm.yaml][] and [dynamixel_head.yaml][] to `config/` folder to allow launching the arm and head separately.
 
-[Troubleshooting](#troubleshooting)
+[Troubleshooting]:#troubleshooting
 
 To launch only the **arm** hardware
 
@@ -85,7 +87,7 @@ ros2 launch robot robot.launch.py robot_parts:=head
 
 ### 1.5 Starting the controllers
 
-In general you can start the controllers:
+In general you can start the controllers with:
 
 ```console
 ros2 control load_controller --set-state configured <controller_name>
@@ -114,7 +116,7 @@ ros2 control list_controllers
 
 Now you are ready to use the hand with the [hand action client][].
 
-### 3. Starting the controllers for eyes
+### 3. Starting the controller for eyes
 
 If you completed the step 2. you can run this command in same cli. Otherwise open new cli.
 
@@ -149,11 +151,11 @@ Finally, start the eye movement node in a new terminal window
 ros2 run eye_movement eye_movement_node
 ```
 
-**Todo: simplify bring up process (add commands to launch file)**
+**Todo: simplify bring up process (add the starting of the controllers to the launch file)**
 
 ## Sending action goals manually
 
-If you want to send action goals to head you need to load and activate the `head_controller` Then following actions and topics should be available:
+The robot head joints doesn't have similar easy to use action client as the arm has. If you want to send action goals to the head you need to start the `head_controller` Then following actions and topics should be available:
 
 ```console
 vagrant@vagrant-ros:/workspace$ ros2 action list
@@ -164,7 +166,7 @@ vagrant@vagrant-ros:/workspace$ ros2 topic list
 /joint_states
 ```
 
-For example, if the joint `head_pan_joint` was configured correctly, it should move to position `0.5` when publishing the following action:
+For example, if the joint `head_pan_joint` was configured correctly, it should move to position `0.5` when publishing the following action (other joints will also move to 0 positions if not already):
 
 ```console
 ros2 action send_goal /head_controller/follow_joint_trajectory control_msgs/action/FollowJointTrajectory "{
@@ -172,6 +174,36 @@ ros2 action send_goal /head_controller/follow_joint_trajectory control_msgs/acti
     joint_names: [head_pan_joint, head_tilt_right_joint, head_tilt_left_joint, head_tilt_vertical_joint],
     points: [
       { positions: [0.5, 0.0, 0.0, 0.0], time_from_start: { sec: 1, nanosec: 0 } }
+    ]
+  }
+}"
+```
+
+**Note: When driving the head_tilt_left/right joints, you must move the both servos simulatenously the same amount to the correct directions!**
+
+**Note: The head_tilt_vertical_joint is easily overloaded due to the weight of the head and stickiness of the drive screw, and the servo will stop responding. Requires mechanical improvement.**
+
+If you want to move only one joint at a time, it possible by omitting the other joints:
+
+```console
+ros2 action send_goal /head_controller/follow_joint_trajectory control_msgs/action/FollowJointTrajectory "{
+  trajectory: {
+    joint_names: [head_pan_joint],
+    points: [
+      { positions: [1.0], time_from_start: { sec: 2, nanosec: 0 } }
+    ]
+  }
+}"
+```
+
+The jaw can be controlled with jaw_controller. Value for closed jaw is 0.0 and for open 0.55.
+
+```console
+ros2 action send_goal /jaw_controller/follow_joint_trajectory control_msgs/action/FollowJointTrajectory "{
+  trajectory: {
+    joint_names: [head_jaw_joint],
+    points: [
+      { positions: [0.55], time_from_start: { sec: 1, nanosec: 0 } }
     ]
   }
 }"
