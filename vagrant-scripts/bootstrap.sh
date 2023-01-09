@@ -100,7 +100,7 @@ apt install -y \
 #apt install -y python3-keras
 #python3-keras not available in 22.04, so install requirements with pip
 python3 -m pip install -U \
- #keras \
+ keras \
  tensorflow-cpu #CPU version of the tensorflow, install tensorflow if both cpu and gpu is needed
 
 # curl -L -o /tmp/ros2-foxy.tar.bz2 https://github.com/ros2/ros2/releases/download/release-foxy-20201211/ros2-foxy-20201211-linux-focal-amd64.tar.bz2
@@ -174,11 +174,12 @@ adduser vagrant vboxsf
 mkdir -p /opencv_cam_ws/src
 cd /opencv_cam_ws/src
 git clone https://github.com/clydemcqueen/opencv_cam.git
-# Checkout specific commit of ros2_shared
+# Checkout specific commit of ros2_shared,
+# because recent changes broke the compatibility with colcon.
 git clone https://github.com/ptrmu/ros2_shared.git
 cd ros2_shared
 git checkout 02433ef4f873876c3dd3ab2925987cf04d224660
-cd ..
+cd ../..
 
 rosdep init
 rosdep update
