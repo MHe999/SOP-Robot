@@ -88,7 +88,7 @@ ros2 launch robot robot.launch.py robot_parts:=head
 In general you can start the controllers:
 
 ```console
-ros2 control load_controller --set-state start <controller_name>
+ros2 control load_controller --set-state configured <controller_name>
 ```
 And then activate:
 ```console
