@@ -514,7 +514,8 @@ namespace robot_hardware
                               &log);
     if (!result)
     {
-      RCLCPP_ERROR(logger_, "Error while trying to read servo values, IDs: %d, %d, %d...", id_array[0], id_array[1], id_array[2]);
+      //RCLCPP_ERROR(logger_, "Error while trying to read servo values, IDs: %d, %d, %d...", id_array[0], id_array[1], id_array[2]);
+      RCLCPP_ERROR(logger_, "Error while trying to read servo values.");
       RCLCPP_ERROR(logger_, "syncRead [HandlerId: %d]: %s", group.read_handler_id, log);
       return false;
     }
